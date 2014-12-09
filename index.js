@@ -1,18 +1,11 @@
-var rq = require('request'),
-	tr = require('trumpet')();
+var SiteChecker = require('./lib/SiteChecker');
 
 console.log('Checking...',process.argv[2]);
 
-var newUI = false;
-rq.get(process.argv[2]).pipe(tr);
-
-tr.select('#ddLanguage', function (data) {
-	console.log('Is the new UI.');
-	newUI = true;
-});
-
-tr.on('end', function () {
-	if (!newUI) {
-		console.log('Is not the new UI.');
-	}
-});
+SiteChecker.checkSingleSite(process.argv[2]).then(
+	function (site) {
+		console.log(site);
+	},
+	function (reason) {
+		console.log(reason);
+	});
