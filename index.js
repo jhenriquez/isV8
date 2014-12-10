@@ -7,41 +7,42 @@ dotenv.load();
 
 function onSuccess (clients) {
 	var resolved = [];
-	(function checkClient() {
-		var client = clients.shift();
-		SiteChecker.checkSites(client.bindings).then(
-			function (resolvedBindings) {
-				client.bindings = resolvedBindings;
-				resolved.push(client);
-				console.log(client);
-				if (clients.length === 0) {
-					mongoClient.connect(process.env.db, function (err, db) {
+	mongoClient.connect(process.env.db, function (err, db) {
+		if (err) {
+			console.log('error connecting:', err);
+			return;
+		}
+		var sites = db.collection('sites');
+
+		(function checkClient() {
+			var client = clients.shift();
+			SiteChecker.checkSites(client.bindings).then(
+				function (resolvedBindings) {
+					client.bindings = resolvedBindings;
+					sites.insert(client, {w:1}, function (err, r) {
 						if (err) {
-							console.log('error connecting:', err);
+							console.log('error inserting:', err);
 							return;
 						}
-						var sites = db.collection('sites');
-						sites.insert(resolved, {w:1}, function (err, r) {
-							if (err) {
-								console.log('error inserting:', err);
-								return;
-							}
-							console.log('Persitence result:',r);
-							console.log('Thank you! Have a nice one!');
-							mongoClient.close();
-						});
+						console.log('resulted:', r);
 					});
-				} else {
-					checkClient();
-				}
-			}, function (reason) {
-				console.log(reason);
-				console.log(client);				
-				if (clients.length > 0) {
-					checkClient();
-				}
-			});
-	})();
+
+					if (clients.length === 0) {
+						mongoClient.close();
+						return;
+					} else {
+						checkClient();
+					}
+					
+				}, function (reason) {
+					console.log(reason);
+					console.log(client);				
+					if (clients.length > 0) {
+						checkClient();
+					}
+				});
+		})();
+	});
 }
 
 function onError (reason) {
