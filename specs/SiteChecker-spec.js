@@ -137,5 +137,63 @@ describe('SiteChecker', function () {
 				});
 
 		});
+		it('accepts urls without protocol', function (done) {
+			this.timeout(20000);
+			var sites = ['google.com'];
+
+			SiteChecker.checkSites(sites).then(
+				function (value) {
+					try {
+						value.should.be.ok();
+						value.should.be.a('Array').with.length(1);
+						done();
+					} catch(x) {
+						done(x);
+					}
+				},
+				function () {
+					done(new Error("Failed because it did complain about the arguments."));
+				});
+		});
+
+		it('accepts urls with trailing spaces', function (done) {
+			this.timeout(20000);
+			var sites = ['  google.com'];
+
+			SiteChecker.checkSites(sites).then(
+				function (value) {
+					try {
+						value.should.be.ok();
+						value.should.be.a('Array').with.length(1);
+						done();
+					} catch(x) {
+						done(x);
+					}
+				},
+				function (reason) {
+					done(new Error("Failed because it did complain about the arguments."));
+				});
+		});
+
+		it('it continues even if some of provided sites fail.', function (done) {
+			this.timeout(20000);
+			var sites = ['  google.com','labasuradesite.com','track.positionlogic.com'];
+
+			SiteChecker.checkSites(sites).then(
+				function (value) {
+					console.log(value);
+					try {
+						value.should.be.ok();
+						value.should.be.a('Array').with.length(3);
+						value[1].isNewUI.should.eql('unknown');
+						done();
+					} catch(x) {
+						done(x);
+					}
+				},
+				function (reason) {
+					done(new Error("Failed because it did complain about the arguments."));
+				});
+		});
 	});
 });
