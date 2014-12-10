@@ -11,7 +11,6 @@ function onSuccess (clients) {
 				resolved.push(client);
 				console.log(client);
 				if (clients.length === 0) {
-					console.log(resolved);
 					console.log(resolved.length);
 				} else {
 					checkClient();
