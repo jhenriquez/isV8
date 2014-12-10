@@ -1,5 +1,9 @@
 var SiteChecker = require('./lib/SiteChecker'),
-	SiteInfoProvider = require('./lib/SiteInfoProvider');
+	SiteInfoProvider = require('./lib/SiteInfoProvider'),
+	mongoClient = require('mongodb').MongoClient,
+	dotenv = require('dotenv');
+
+dotenv.load();
 
 function onSuccess (clients) {
 	var resolved = [];
@@ -11,7 +15,22 @@ function onSuccess (clients) {
 				resolved.push(client);
 				console.log(client);
 				if (clients.length === 0) {
-					console.log(resolved.length);
+					mongoClient.connect(process.env.db, function (err, db) {
+						if (err) {
+							console.log('error connecting:', err);
+							return;
+						}
+						var sites = db.collection('sites');
+						sites.insert(resolved, {w:!}, function (err, r) {
+							if (err) {
+								console.log('error inserting:', err);
+								return;
+							}
+							console.log('Persitence result:',r);
+							console.log('Thank you! Have a nice one!');
+							mongoClient.close();
+						});
+					});
 				} else {
 					checkClient();
 				}
