@@ -21,7 +21,7 @@ function onSuccess (clients) {
 							return;
 						}
 						var sites = db.collection('sites');
-						sites.insert(resolved, {w:!}, function (err, r) {
+						sites.insert(resolved, {w:1}, function (err, r) {
 							if (err) {
 								console.log('error inserting:', err);
 								return;
