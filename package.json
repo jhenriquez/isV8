@@ -4,7 +4,7 @@
   "description": "A little tool that identifies if a site is version 8",
   "main": "index.js",
   "scripts": {
-    "test": "grunt test"
+    "test": "mocha specs/"
   },
   "repository": {
     "type": "git",

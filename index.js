@@ -12,6 +12,7 @@ function onSuccess (clients) {
 			console.log('error connecting:', err);
 			return;
 		}
+		
 		var sites = db.collection('sites');
 
 		(function checkClient() {
@@ -19,21 +20,21 @@ function onSuccess (clients) {
 			SiteChecker.checkSites(client.bindings).then(
 				function (resolvedBindings) {
 					client.bindings = resolvedBindings;
+					console.log(client);
 					sites.insert(client, {w:1}, function (err, r) {
 						if (err) {
 							console.log('error inserting:', err);
 							return;
 						}
-						console.log('resulted:', r);
+						console.log('Persisted.');
 					});
 
 					if (clients.length === 0) {
 						mongoClient.close();
-						return;
 					} else {
 						checkClient();
 					}
-					
+
 				}, function (reason) {
 					console.log(reason);
 					console.log(client);				
@@ -49,4 +50,12 @@ function onError (reason) {
 	console.log(reason);
 }
 
-SiteInfoProvider.getAllBindings().then(onSuccess,onError);
+var siteName = process.argv[2];
+
+
+if (siteName) {
+  console.log('Checking Bindings for:',siteName);
+  SiteInfoProvider.getBindings(siteName).then(onSuccess,onError);
+} else {
+  SiteInfoProvider.getAllBindings().then(onSuccess, onError);
+}
