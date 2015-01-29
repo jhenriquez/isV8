@@ -1,17 +1,57 @@
-var chai = require('chai'),
- 	SiteInfoProvider = require('../lib/SiteInfoProvider');
+var chai = require('chai');
 
- chai.should();
+require('dotenv').load();
+
+chai.should();
 
  describe('SiteInfoProvider', function () {
+  
+  var SiteInfoProvider;
+
+  before(function () {
+    SiteInfoProvider = require('../lib/SiteInfoProvider');
+  });
+
  	describe('getBindings', function () {
  		it('it returns a promise.', function () {
  			SiteInfoProvider.getBindings().constructor.name.should.be.eql('Promise');
  		});
  	});
 
-  describe('subscriptions', function () {
-    
+  describe('getLegacySubscriptions', function () {
+    it('should return an array of subscriptions if available', function (done) {
+      this.timeout(20000);
+      SiteInfoProvider.getLegacySubscriptions().then(
+        function (sites) {
+          try {
+            sites.LegacySubscriptions.should.be.ok.and.be.instanceof(Array);
+            done();
+          } catch (x) {
+            done(x);
+          }
+        },
+        function (fail) {
+          done(fail);
+        });
+    });
+  });
+
+  describe('sites', function () {
+    it('should return all sites when called with no parameters', function (done) {
+      this.timeout(20000);
+      SiteInfoProvider.sites().then(function (sites) {
+        try {
+         sites.should.be.instanceof(Array);
+         done();
+        }  catch(x) {
+          done(x);
+        }
+      },
+      function (fail) {
+        console.log('Error log: ', fail);
+        done(new Error('Oops. Something went wrong. Please, read the console log.'));
+      });
+    });
   });
 
  	describe('getBindings Validations', function (done) {
@@ -76,4 +116,4 @@ var chai = require('chai'),
  				});
  		});
  	});
- });
+});

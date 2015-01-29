@@ -1,9 +1,10 @@
+require('dotenv').load();
+
 var SiteChecker = require('./lib/SiteChecker'),
 	SiteInfoProvider = require('./lib/SiteInfoProvider'),
-	mongoClient = require('mongodb').MongoClient,
-	dotenv = require('dotenv');
+	mongoClient = require('mongodb').MongoClient;
 
-dotenv.load();
+
 
 function onSuccess (clients) {
 	var resolved = [];
@@ -50,6 +51,38 @@ function onError (reason) {
 	console.log(reason);
 }
 
+
+function PersistAllThisCrap(sites) {
+	mongoClient.connect(process.env.db, function (err, db) {
+		if (err) {
+			console.log('error connecting:', err);
+			return;
+		}
+		var subs = db.collection('LegacySubscriptions');
+		subs.insert(sites, {w:1}, function (err, r) {
+			if(err) throw err;
+			console.log('persisted', r);
+			db.close();
+		});
+	});
+}		
+
+		
+
+		
+			
+
+
+SiteInfoProvider
+	.getLegacySubscriptions()
+	.then(PersistAllThisCrap,
+		function (err) { console.log('Error:', err); },
+		function (site) { console.log('Processed Site', site); }
+	);
+
+
+/*
+
 var siteName = process.argv[2];
 
 
@@ -59,3 +92,5 @@ if (siteName) {
 } else {
   SiteInfoProvider.getAllBindings().then(onSuccess, onError);
 }
+
+*/
