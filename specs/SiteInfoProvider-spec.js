@@ -10,6 +10,10 @@ var chai = require('chai'),
  		});
  	});
 
+  describe('subscriptions', function () {
+    
+  });
+
  	describe('getBindings Validations', function (done) {
  		it('would reject an empty string.', function (done) {
  			SiteInfoProvider.getBindings('').then(
